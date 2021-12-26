@@ -1,4 +1,4 @@
-import { UserOutlined,ControlOutlined,HomeOutlined,UnorderedListOutlined } from '@ant-design/icons';
+import { UserOutlined, ControlOutlined, HomeOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { Layout, Menu } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -11,11 +11,10 @@ export default function SideMenu() {
   const [menuList, setMenuList] = useState([])
   useEffect(() => {
     fetch('http://localhost:4000/rights?_embed=children')
-    .then(res=>res.json())
-    .then(data=>{
-      console.log(data);
-      setMenuList(data)
-    })
+      .then(res => res.json())
+      .then(data => {
+        setMenuList(data)
+      })
   }, [])
   let navigate = useNavigate()
   let location = useLocation()
@@ -58,13 +57,9 @@ export default function SideMenu() {
   // ]
 
   // 获取默认选中的key
-  const getSelectedKey = () => {
-    return [location.pathname.slice(1)]
-  }
+  const selectedKey = [location.pathname]
   // 获取默认打开的key
-  const getOpenKeys = () => {
-    return location.pathname.split('/')
-  }
+  const openKeys = ['/' + location.pathname.split('/')[1]]
 
   // 过滤请求过来的数据(pagepermisson : 1)
   const checkPagePermission = (menu) => {
@@ -73,12 +68,12 @@ export default function SideMenu() {
 
   // iconList
   const iconList = {
-    '/home':<HomeOutlined />,
-    '/user-manage':<UserOutlined/>,
-    '/user-manage/list':<UserOutlined />,
-    '/right-manage':<ControlOutlined />,
-    '/right-manage/role/list':<UnorderedListOutlined />,
-    '/right-manage/right/list':<UnorderedListOutlined />,
+    '/home': <HomeOutlined />,
+    '/user-manage': <UserOutlined />,
+    '/user-manage/list': <UserOutlined />,
+    '/right-manage': <ControlOutlined />,
+    '/right-manage/role/list': <UnorderedListOutlined />,
+    '/right-manage/right/list': <UnorderedListOutlined />,
   }
 
   // 渲染menu
@@ -98,10 +93,14 @@ export default function SideMenu() {
   }
   return (
     <Sider trigger={null} collapsible collapsed={false}>
-      <div className="logo">IoT新闻发布系统</div>
-      <Menu theme="dark" mode="inline" defaultSelectedKeys={getSelectedKey()} defaultOpenKeys={getOpenKeys()}>
-        {renderMenu(menuList)}
-      </Menu>
+      <div style={{ display: 'flex', height:'100%',flexDirection: 'column'}}>
+        <div className="logo">IoT新闻发布系统</div>
+        <div style={{ flex: 1, 'overflow': 'auto' }}>
+          <Menu theme="dark" mode="inline" selectedKeys={selectedKey} defaultOpenKeys={openKeys}>
+            {renderMenu(menuList)}
+          </Menu>
+        </div>
+      </div>
     </Sider>
   )
 }

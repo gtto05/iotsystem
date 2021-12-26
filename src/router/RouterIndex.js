@@ -7,7 +7,7 @@ import Category from '../views/sandbox/news-manage/Category'
 import Draft from '../views/sandbox/news-manage/Draft'
 import RightList from '../views/sandbox/right-manage/RightList'
 import Sandbox from '../views/sandbox/Sandbox'
-import RoleList from '../views/sandbox/user-manage/RoleList'
+import RoleList from '../views/sandbox/right-manage/RoleList'
 import UserList from '../views/sandbox/user-manage/UserList'
 export default function RouterIndex() {
   return (
