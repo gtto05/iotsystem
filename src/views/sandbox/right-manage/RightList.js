@@ -1,14 +1,22 @@
-import { Button, Table, Tag } from 'antd';
-import {DeleteOutlined,EditOutlined} from '@ant-design/icons'
-import React, { useEffect, useState } from 'react'
-
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Button, Modal, Popover, Switch, Table, Tag } from 'antd';
+import React, { useEffect, useState } from 'react';
+const { confirm } = Modal
 export default function RightList() {
   const [dataSource, setDataSource] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:4000/rights')
+    fetch('http://localhost:4000/rights?_embed=children')
       .then(res => res.json())
-      .then(data => setDataSource(data))
+      .then(data => {
+        let newData = data.slice(0)
+        newData.forEach((item) => {
+          if (item.children.length === 0) {
+            item.children = ''
+          }
+        })
+        setDataSource(newData)
+      })
   }, [])
 
   const columns = [
@@ -32,17 +40,88 @@ export default function RightList() {
     },
     {
       title: '操作',
-      render: () => {
+      render: (item) => {
         return <div>
-           <Button danger shape="circle" icon={<DeleteOutlined />} />
-           <Button type="primary" shape="circle" icon={<EditOutlined />} />
+          <Button danger shape="circle" icon={<DeleteOutlined />} onClick={() => {
+            confirmMethod(item)
+          }} />
+          <Popover content={<Switch defaultChecked={item.pagepermisson} onChange={()=>{onChange(item)}} />} title="页面配置项" trigger={item.pagepermisson=== undefined ? '':'click'}>
+            <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.pagepermisson === undefined}/>
+          </Popover>
         </div>
       }
     }
   ];
+
+  // 配置项Switch切换
+  const onChange = (item) => {
+    item.pagepermisson = item.pagepermisson === 0? 1:0
+    console.log('onChange',item);
+    setDataSource([...dataSource])
+    const data = {
+      pagepermisson: item.pagepermisson
+    }
+    if(item.grade === 1) {
+      fetch(`http://localhost:4000/rights/${item.id}`,{
+        method:'PATCH',
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        body:JSON.stringify(data)
+      })
+    } else {
+      fetch(`http://localhost:4000/children/${item.id}`,{
+        method:'PATCH',
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        body:JSON.stringify(data)
+      })
+    }
+  }
+
+  const confirmMethod = (item) => {
+    confirm({
+      title: '你确定要删除吗?',
+      icon: <ExclamationCircleOutlined />,
+      onOk() {
+        deleteMethod(item)
+      },
+      onCancel() {
+        console.log('Cancel');
+      },
+    });
+  }
+  // 删除
+  const deleteMethod = (item) => {
+    if (item.grade === 1) {
+      setDataSource(dataSource.filter((data) => {
+        return data.id !== item.id
+      }))
+      fetch(`http://localhost:4000/rights/${item.id}`, {
+        method: 'delete'
+      })
+    } else {
+      console.log(item.rightId);
+      // 根据rightId找到上一层
+      let list = dataSource.filter(data => data.id === item.rightId)[0]
+      // console.log(list);
+      list.children = list.children.filter(data => data.id !== item.id)
+      // console.log(list);
+      fetch(`http://localhost:4000/children/${item.id}`, {
+        method: 'delete'
+      })
+      setDataSource([...dataSource])
+
+    }
+
+  }
+
   return (
     <div>
-      <Table dataSource={dataSource} columns={columns}></Table>
+      <Table dataSource={dataSource} columns={columns} pagination={{
+        pageSize: 5
+      }}></Table>
     </div>
   )
 }
