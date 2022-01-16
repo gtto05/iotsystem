@@ -1,5 +1,5 @@
-import { Button } from 'antd'
-import React from 'react'
+import { Button } from 'antd';
+import React from 'react';
 
 export default function Home() {
   const ajax = () => {
@@ -32,19 +32,23 @@ export default function Home() {
     // })
     // 关联
     fetch('http://localhost:4000/posts/1?_embed=comments')
-    .then(res=>res.json())
-    .then(data=>console.log(data))
+      .then((res) => res.json())
+      .then((data) => console.log(data));
     fetch('http://localhost:4000/comments?_expand=post')
-    .then(res=>res.json())
-    .then(data=>console.log(data))
-
-  }
+      .then((res) => res.json())
+      .then((data) => console.log(data));
+  };
   return (
     <div>
       Home
-      <Button type='primary' onClick={() => {
-        ajax()
-      }}>button</Button>
+      <Button
+        type="primary"
+        onClick={() => {
+          ajax();
+        }}
+      >
+        button
+      </Button>
     </div>
-  )
+  );
 }

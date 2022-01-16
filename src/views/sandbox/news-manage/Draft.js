@@ -1,9 +1,5 @@
-import React from 'react'
+import React from 'react';
 
 export default function Draft() {
-  return (
-    <div>
-      Draft
-    </div>
-  )
+  return <div>Draft</div>;
 }
